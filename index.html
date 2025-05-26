@@ -1,11 +1,10 @@
-<!-- index.html - メインファイル -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AI Chat Bot</title>
-    <meta name="description" content="LINE風AIチャットボット - Dify連携対応">
+    <meta name="description" content="LINE風AIチャットボット - モバイル最適化版">
     <style>
         /* 基本的なリセット */
         * {
@@ -14,35 +13,46 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden; /* スクロール防止 */
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f0f0f0;
-            height: 100vh;
             display: flex;
             flex-direction: column;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
         }
 
         /* ヘッダー */
         .header {
             background-color: #00c300;
             color: white;
-            padding: 15px 20px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            min-height: 50px;
         }
 
         .header h1 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
 
         .status-indicator {
             margin-left: auto;
-            font-size: 12px;
+            font-size: 11px;
             padding: 4px 8px;
             background-color: rgba(255,255,255,0.2);
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .status-indicator.connected {
@@ -56,13 +66,16 @@
         /* チャットエリア */
         .chat-container {
             flex: 1;
-            padding: 20px;
+            padding: 12px;
             overflow-y: auto;
             background-color: #f0f0f0;
+            /* iOS Safari対応 */
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px;
         }
 
         .message {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             align-items: flex-end;
         }
@@ -72,10 +85,10 @@
         }
 
         .message-bubble {
-            max-width: 80%;
+            max-width: 85%;
             padding: 12px 16px;
-            border-radius: 20px;
-            font-size: 14px;
+            border-radius: 18px;
+            font-size: 16px; /* スマホ用に拡大 */
             line-height: 1.4;
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -84,13 +97,13 @@
         .message.bot .message-bubble {
             background-color: white;
             border: 1px solid #e0e0e0;
-            border-bottom-left-radius: 5px;
+            border-bottom-left-radius: 6px;
         }
 
         .message.user .message-bubble {
             background-color: #00c300;
             color: white;
-            border-bottom-right-radius: 5px;
+            border-bottom-right-radius: 6px;
         }
 
         .message.error .message-bubble {
@@ -103,37 +116,46 @@
             background-color: #f0f0f0;
             border: 1px solid #ddd;
             color: #666;
-            font-size: 12px;
+            font-size: 14px;
             font-style: italic;
         }
 
         .timestamp {
-            font-size: 11px;
+            font-size: 12px; /* スマホ用に拡大 */
             color: #888;
-            margin: 5px 10px 0;
+            margin: 4px 12px 0;
         }
 
-        /* 入力エリア */
+        /* 入力エリア - 固定表示 */
         .input-container {
             background-color: white;
-            padding: 15px 20px;
+            padding: 12px 16px;
             border-top: 1px solid #e0e0e0;
             display: flex;
             align-items: flex-end;
-            gap: 10px;
+            gap: 12px;
+            flex-shrink: 0;
+            /* iOS Safari の Safe Area 対応 */
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
         }
 
         .input-field {
             flex: 1;
             border: 1px solid #ddd;
             border-radius: 20px;
-            padding: 10px 15px;
-            font-size: 14px;
+            padding: 12px 16px; /* スマホ用にパディング拡大 */
+            font-size: 16px; /* スマホでズーム防止 */
             outline: none;
             resize: none;
             min-height: 20px;
-            max-height: 100px;
+            max-height: 120px;
             font-family: inherit;
+            /* iOS Safari のズーム防止 */
+            transform: translateZ(0);
+        }
+
+        .input-field:focus {
+            border-color: #00c300;
         }
 
         .send-button {
@@ -141,14 +163,17 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 44px; /* スマホ用に拡大 */
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             font-weight: bold;
             flex-shrink: 0;
+            font-size: 18px;
+            /* タッチ操作の改善 */
+            touch-action: manipulation;
         }
 
         .send-button:hover {
@@ -160,6 +185,10 @@
             cursor: not-allowed;
         }
 
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
         /* ローディング表示 */
         .loading-dots {
             display: flex;
@@ -167,8 +196,8 @@
         }
 
         .loading-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px; /* スマホ用に拡大 */
+            height: 8px;
             background-color: #888;
             border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out;
@@ -183,18 +212,69 @@
             40% { transform: scale(1); }
         }
 
-        /* レスポンシブ対応 */
-        @media (max-width: 768px) {
+        /* タブレット・PC対応 */
+        @media (min-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
             .chat-container {
-                padding: 15px;
+                padding: 20px;
             }
             
             .input-container {
-                padding: 10px 15px;
+                padding: 15px 20px;
             }
             
             .message-bubble {
-                max-width: 85%;
+                max-width: 80%;
+                font-size: 14px;
+            }
+            
+            .timestamp {
+                font-size: 11px;
+            }
+            
+            .input-field {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+            
+            .send-button {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+
+        /* 横向き対応 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .header {
+                padding: 8px 16px;
+                min-height: 40px;
+            }
+            
+            .header h1 {
+                font-size: 14px;
+            }
+            
+            .chat-container {
+                padding: 8px 12px;
+            }
+            
+            .input-container {
+                padding: 8px 16px;
+            }
+        }
+
+        /* iOS Safari 特有の調整 */
+        @supports (-webkit-touch-callout: none) {
+            .input-field {
+                font-size: 16px; /* iOS Safari でのズーム防止 */
             }
         }
     </style>
@@ -211,15 +291,15 @@
         <!-- 初期メッセージ -->
         <div class="message bot">
             <div class="message-bubble">
-                こんにちは！GitHub Pagesで公開されたチャットボットです 🎉
+                こんにちは！スマホ最適化版チャットボットです 📱
                 
-設定変更で本番APIに接続できます
+文字サイズと表示領域を調整しました
             </div>
         </div>
         <div class="timestamp" id="initialTime"></div>
     </div>
 
-    <!-- 入力エリア -->
+    <!-- 入力エリア - 常に表示 -->
     <div class="input-container">
         <textarea 
             class="input-field" 
@@ -234,17 +314,12 @@
 
     <script>
         // ===========================================
-        // 🔧 設定項目（GitHub Pages公開用）
+        // 🔧 設定項目
         // ===========================================
         const CONFIG = {
-            // 🚀 本番用設定（実際の値に置き換えてください）
             DIFY_ENDPOINT: 'https://api.dify.ai/v1/chat-messages',
             DIFY_API_KEY: 'app-1AKzG866aFIbrFElAr95xhjf',
-            
-            // 🔄 動作モード切替
-            USE_REAL_API: true, // GitHub Pages公開後にtrueに変更
-            
-            // アプリ設定
+            USE_REAL_API: true, // 本番モード
             userId: null,
             conversationId: null
         };
@@ -279,6 +354,13 @@
             statusIndicator.textContent = message;
         }
 
+        // スマホでのスクロール調整
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+        }
+
         // ===========================================
         // 🎨 UI操作関数
         // ===========================================
@@ -299,7 +381,7 @@
             chatContainer.appendChild(messageDiv);
             chatContainer.appendChild(timestampDiv);
             
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            scrollToBottom();
         }
 
         function showLoading(show = true) {
@@ -323,7 +405,7 @@
                 
                 messageDiv.appendChild(bubbleDiv);
                 chatContainer.appendChild(messageDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                scrollToBottom();
             } else {
                 const loadingMsg = document.getElementById('loading-message');
                 if (loadingMsg) {
@@ -333,12 +415,11 @@
         }
 
         // ===========================================
-        // 🤖 AI連携（本番・テスト切替）
+        // 🤖 AI連携
         // ===========================================
         
         async function getAIResponse(message) {
             if (CONFIG.USE_REAL_API) {
-                // 🚀 本番モード：実際のDify API
                 try {
                     const requestBody = {
                         inputs: {},
@@ -374,47 +455,9 @@
                     throw error;
                 }
             } else {
-                // 🧪 テストモード：モック応答
-                await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
-                
-                const responses = {
-                    "こんにちは": "こんにちは！GitHub Pagesで公開されたチャットボットです！😊",
-                    "元気？": "はい、元気です！公開おめでとうございます！🎉",
-                    "github": "GitHub Pagesでの公開、成功しましたね！素晴らしいです ✨",
-                    "pages": "GitHub Pages、とても便利ですよね！無料でWebサイトを公開できます 🌐",
-                    "api": "CONFIG.USE_REAL_API を true に変更すると、実際のDify APIに接続できます 🔧",
-                    "設定": "JavaScriptの CONFIG オブジェクトで各種設定を変更できます ⚙️",
-                    "hello": "Hello! Welcome to GitHub Pages! 👋",
-                    "ありがとう": "どういたしまして！公開成功おめでとうございます！🎊",
-                    "天気": "申し訳ありませんが、リアルタイムの天気情報は取得できません ☀️",
-                    "時間": `現在の時刻は${getCurrentTime()}です ⏰`,
-                    "機能": "私は質問応答、会話、情報提供などができます！🤖",
-                    "テスト": "現在テストモードで動作中です。本番モードに切り替え可能です！",
-                    "公開": "GitHub Pagesでの公開、お疲れ様でした！🚀",
-                    
-                    "default": [
-                        "とても興味深いご質問ですね！もう少し詳しく教えていただけますか？🤔",
-                        "GitHub Pagesでの公開、順調に動作していますね！✨",
-                        "素晴らしい質問です！他にも何か聞きたいことはありますか？💡",
-                        "なるほど！それについてもう少し詳しく聞かせてください 😊",
-                        "とても良いポイントですね！続きをお聞かせください 🎯",
-                        "面白い観点ですね！どのようにお考えですか？💭",
-                        "ありがとうございます！お役に立てるよう頑張ります 🌟",
-                        "公開成功おめでとうございます！他にも質問があればどうぞ 🎉"
-                    ]
-                };
-
-                let response;
-                const lowerMessage = message.toLowerCase().trim();
-                
-                if (responses[lowerMessage]) {
-                    response = responses[lowerMessage];
-                } else {
-                    const defaultResponses = responses.default;
-                    response = defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
-                }
-                
-                return response;
+                // テストモード
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return "スマホ最適化版で動作中です！📱";
             }
         }
 
@@ -439,7 +482,7 @@
                 
                 showLoading(false);
                 addMessage(response);
-                updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'GitHub Pages版');
+                updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'スマホ最適化版');
                 
             } catch (error) {
                 console.error('❌ メッセージ送信エラー:', error);
@@ -450,17 +493,18 @@
                 if (error.message.includes('401')) {
                     addMessage('❌ APIキーが無効です。設定を確認してください。', false, true);
                 } else if (error.message.includes('Failed to fetch')) {
-                    addMessage('❌ API接続エラーです。GitHub Pages環境では解決される可能性があります。', false, true);
+                    addMessage('❌ API接続エラーです。しばらくしてから再度お試しください。', false, true);
                 } else {
                     addMessage(`❌ エラーが発生しました: ${error.message}`, false, true);
                 }
                 
                 setTimeout(() => {
-                    updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'GitHub Pages版');
+                    updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'スマホ最適化版');
                 }, 3000);
                 
             } finally {
                 sendButton.disabled = false;
+                messageInput.focus(); // スマホでフォーカスを戻す
             }
         }
 
@@ -477,9 +521,15 @@
             }
         });
 
+        // テキストエリア自動リサイズ（スマホ対応）
         messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // スマホでキーボード表示時の調整
+        window.addEventListener('resize', () => {
+            scrollToBottom();
         });
 
         // ===========================================
@@ -490,14 +540,19 @@
             initialTime.textContent = getCurrentTime();
             const userId = getUserId();
             
-            console.log('🎉 GitHub Pages版チャットボット起動完了');
-            console.log('🌐 公開URL:', window.location.href);
+            console.log('📱 スマホ最適化版チャットボット起動');
             console.log('👤 User ID:', userId);
             console.log('🤖 API Mode:', CONFIG.USE_REAL_API ? '本番' : 'テスト');
-            console.log('💡 本番モードにするには CONFIG.USE_REAL_API = true に設定');
             
-            updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'GitHub Pages版');
+            updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'スマホ最適化版');
             messageInput.focus();
+        });
+
+        // ページ離脱防止（誤操作対策）
+        window.addEventListener('beforeunload', (e) => {
+            // 必要に応じてコメントアウト
+            // e.preventDefault();
+            // return '';
         });
     </script>
 </body>
