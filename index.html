@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AI Chat Bot</title>
-    <meta name="description" content="LINE風AIチャットボット - モバイル最適化版">
+    <title>AI Chat Bot - Commercial</title>
+    <meta name="description" content="商用AIチャットボット - Vercel & Supabase連携">
     <style>
         /* 基本的なリセット */
         * {
@@ -15,7 +15,7 @@
 
         html, body {
             height: 100%;
-            overflow: hidden; /* スクロール防止 */
+            overflow: hidden;
         }
 
         body {
@@ -69,7 +69,6 @@
             padding: 12px;
             overflow-y: auto;
             background-color: #f0f0f0;
-            /* iOS Safari対応 */
             -webkit-overflow-scrolling: touch;
             padding-bottom: 10px;
         }
@@ -88,7 +87,7 @@
             max-width: 85%;
             padding: 12px 16px;
             border-radius: 18px;
-            font-size: 18px; /* 16px → 18px に拡大 */
+            font-size: 18px;
             line-height: 1.4;
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -116,17 +115,17 @@
             background-color: #f0f0f0;
             border: 1px solid #ddd;
             color: #666;
-            font-size: 16px; /* 14px → 16px に拡大 */
+            font-size: 16px;
             font-style: italic;
         }
 
         .timestamp {
-            font-size: 13px; /* 12px → 13px に拡大 */
+            font-size: 13px;
             color: #888;
             margin: 4px 12px 0;
         }
 
-        /* 入力エリア - 固定表示 */
+        /* 入力エリア */
         .input-container {
             background-color: white;
             padding: 12px 16px;
@@ -135,7 +134,6 @@
             align-items: flex-end;
             gap: 12px;
             flex-shrink: 0;
-            /* iOS Safari の Safe Area 対応 */
             padding-bottom: max(12px, env(safe-area-inset-bottom));
         }
 
@@ -143,14 +141,13 @@
             flex: 1;
             border: 1px solid #ddd;
             border-radius: 20px;
-            padding: 12px 16px; /* スマホ用にパディング拡大 */
-            font-size: 18px; /* 16px → 18px に拡大、ズーム防止も維持 */
+            padding: 12px 16px;
+            font-size: 18px;
             outline: none;
             resize: none;
             min-height: 20px;
             max-height: 120px;
             font-family: inherit;
-            /* iOS Safari のズーム防止 */
             transform: translateZ(0);
         }
 
@@ -163,7 +160,7 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 44px; /* スマホ用に拡大 */
+            width: 44px;
             height: 44px;
             display: flex;
             align-items: center;
@@ -172,7 +169,6 @@
             font-weight: bold;
             flex-shrink: 0;
             font-size: 18px;
-            /* タッチ操作の改善 */
             touch-action: manipulation;
         }
 
@@ -196,7 +192,7 @@
         }
 
         .loading-dot {
-            width: 8px; /* スマホ用に拡大 */
+            width: 8px;
             height: 8px;
             background-color: #888;
             border-radius: 50%;
@@ -250,40 +246,13 @@
                 font-size: 16px;
             }
         }
-
-        /* 横向き対応 */
-        @media (orientation: landscape) and (max-height: 500px) {
-            .header {
-                padding: 8px 16px;
-                min-height: 40px;
-            }
-            
-            .header h1 {
-                font-size: 14px;
-            }
-            
-            .chat-container {
-                padding: 8px 12px;
-            }
-            
-            .input-container {
-                padding: 8px 16px;
-            }
-        }
-
-        /* iOS Safari 特有の調整 */
-        @supports (-webkit-touch-callout: none) {
-            .input-field {
-                font-size: 18px; /* iOS Safari でのズーム防止、かつ読みやすいサイズ */
-            }
-        }
     </style>
 </head>
 <body>
     <!-- ヘッダー -->
     <div class="header">
         <h1>🤖 AI Chat Bot</h1>
-        <div class="status-indicator connected" id="statusIndicator">GitHub Pages版</div>
+        <div class="status-indicator connected" id="statusIndicator">商用版</div>
     </div>
 
     <!-- チャットエリア -->
@@ -291,15 +260,15 @@
         <!-- 初期メッセージ -->
         <div class="message bot">
             <div class="message-bubble">
-                こんにちは！スマホ最適化版チャットボットです 📱
+                こんにちは！Vercel商用版チャットボットです 🚀
                 
-文字サイズ18px・端末別ユーザーID対応
+Supabase完全連携でデータ永続保存対応
             </div>
         </div>
         <div class="timestamp" id="initialTime"></div>
     </div>
 
-    <!-- 入力エリア - 常に表示 -->
+    <!-- 入力エリア -->
     <div class="input-container">
         <textarea 
             class="input-field" 
@@ -314,14 +283,33 @@
 
     <script>
         // ===========================================
-        // 🔧 設定項目
+        // 🔧 商用設定
         // ===========================================
-        const CONFIG = {
+        const COMMERCIAL_CONFIG = {
+            // 環境判定
+            isProduction: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1',
+            isVercel: window.location.hostname.includes('vercel.app') || window.location.hostname.includes('vercel.com'),
+            
+            // Supabase設定
+            SUPABASE_URL: 'https://vdpfciilcwgdvqnancsx.supabase.co',
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkcGZjaWlsY3dnZHZxbmFuY3N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzg0NTYsImV4cCI6MjA2Mzg1NDQ1Nn0.NIs2_UuZMikSBGjo52OuQc1F0JkUyqiTYzVpOnKxea8',
+            
+            // Dify設定
             DIFY_ENDPOINT: 'https://api.dify.ai/v1/chat-messages',
             DIFY_API_KEY: 'app-1AKzG866aFIbrFElAr95xhjf',
-            USE_REAL_API: true, // 本番モード
+            
+            // アプリ設定
             userId: null,
             conversationId: null
+        };
+
+        // API基本URL（Vercel環境判定）
+        const getApiBaseUrl = () => {
+            if (COMMERCIAL_CONFIG.isProduction) {
+                return '/api/supabase'; // Vercelプロキシ経由
+            } else {
+                return 'https://vdpfciilcwgdvqnancsx.supabase.co/rest/v1'; // 直接アクセス
+            }
         };
 
         // DOM要素の取得
@@ -335,42 +323,38 @@
         // 🛠️ ユーティリティ関数
         // ===========================================
         
-        // 端末固有のユーザーID生成・取得
         function getUserId() {
-            if (CONFIG.userId) return CONFIG.userId;
+            if (COMMERCIAL_CONFIG.userId) return COMMERCIAL_CONFIG.userId;
             
-            // ローカルストレージから端末固有IDを取得
-            let deviceUserId = null;
+            // 商用版では永続化を試行
+            let userId = null;
             try {
-                deviceUserId = localStorage.getItem('chatbot_device_user_id');
+                userId = localStorage.getItem('commercial_chatbot_user_id');
             } catch (e) {
                 console.warn('localStorage利用不可、セッション限定IDを使用');
             }
             
-            if (!deviceUserId) {
-                // 端末識別用の情報を組み合わせてユニークIDを生成
+            if (!userId) {
                 const timestamp = Date.now();
                 const random = Math.random().toString(36).substr(2, 9);
                 const userAgent = navigator.userAgent.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '');
                 const screenInfo = `${screen.width}x${screen.height}`;
                 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/[^a-zA-Z0-9]/g, '');
                 
-                // 端末識別情報を含む固有IDを生成
-                deviceUserId = `device_${timestamp}_${random}_${userAgent}_${screenInfo}_${timezone}`.substring(0, 50);
+                userId = `commercial_${timestamp}_${random}_${userAgent}_${screenInfo}_${timezone}`.substring(0, 60);
                 
-                // 可能であればローカルストレージに保存
                 try {
-                    localStorage.setItem('chatbot_device_user_id', deviceUserId);
-                    console.log('👤 新しい端末IDを生成・保存:', deviceUserId);
+                    localStorage.setItem('commercial_chatbot_user_id', userId);
+                    console.log('👤 商用ユーザーID生成・保存:', userId);
                 } catch (e) {
-                    console.log('👤 新しい端末ID生成（セッション限定）:', deviceUserId);
+                    console.log('👤 商用ユーザーID生成（セッション限定）:', userId);
                 }
             } else {
-                console.log('👤 既存の端末IDを使用:', deviceUserId);
+                console.log('👤 既存の商用ユーザーIDを使用:', userId);
             }
             
-            CONFIG.userId = deviceUserId;
-            return deviceUserId;
+            COMMERCIAL_CONFIG.userId = userId;
+            return userId;
         }
 
         function getCurrentTime() {
@@ -384,12 +368,80 @@
             statusIndicator.textContent = message;
         }
 
-        // スマホでのスクロール調整
         function scrollToBottom() {
             setTimeout(() => {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }, 100);
         }
+
+        // ===========================================
+        // 🗄️ 商用Supabaseクライアント
+        // ===========================================
+        
+        class CommercialSupabaseClient {
+            constructor() {
+                this.baseUrl = getApiBaseUrl();
+                this.headers = {
+                    'apikey': COMMERCIAL_CONFIG.SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${COMMERCIAL_CONFIG.SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                };
+            }
+            
+            async request(method, endpoint, data = null) {
+                const url = `${this.baseUrl}/${endpoint}`;
+                
+                const options = {
+                    method,
+                    headers: this.headers,
+                    mode: 'cors'
+                };
+                
+                if (data && (method === 'POST' || method === 'PATCH')) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                console.log(`🌐 商用API: ${method} ${url}`);
+                
+                const response = await fetch(url, options);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Commercial API Error (${response.status}): ${errorText}`);
+                }
+                
+                const result = response.status === 204 ? null : await response.json();
+                console.log(`✅ 商用API成功:`, result);
+                
+                return result;
+            }
+            
+            async getUserByUserId(userId) {
+                const data = await this.request('GET', `users?user_id=eq.${userId}&select=*`);
+                return data || [];
+            }
+            
+            async createUser(userData) {
+                return await this.request('POST', 'users', userData);
+            }
+            
+            async updateUser(userId, userData) {
+                return await this.request('PATCH', `users?user_id=eq.${userId}`, userData);
+            }
+            
+            async saveChatLog(logData) {
+                return await this.request('POST', 'chat_logs', logData);
+            }
+            
+            async getChatHistory(userId, limit = 20) {
+                const data = await this.request('GET', 
+                    `chat_logs?user_id=eq.${userId}&order=created_at.desc&limit=${limit}&select=*`);
+                return data ? data.reverse() : [];
+            }
+        }
+
+        const supabaseClient = new CommercialSupabaseClient();
 
         // ===========================================
         // 🎨 UI操作関数
@@ -449,45 +501,39 @@
         // ===========================================
         
         async function getAIResponse(message) {
-            if (CONFIG.USE_REAL_API) {
-                try {
-                    const requestBody = {
-                        inputs: {},
-                        query: message,
-                        response_mode: "blocking",
-                        conversation_id: CONFIG.conversationId || "",
-                        user: getUserId(),
-                        auto_generate_name: false
-                    };
+            try {
+                const requestBody = {
+                    inputs: {},
+                    query: message,
+                    response_mode: "blocking",
+                    conversation_id: COMMERCIAL_CONFIG.conversationId || "",
+                    user: getUserId(),
+                    auto_generate_name: false
+                };
 
-                    const response = await fetch(CONFIG.DIFY_ENDPOINT, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${CONFIG.DIFY_API_KEY}`,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(requestBody)
-                    });
+                const response = await fetch(COMMERCIAL_CONFIG.DIFY_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${COMMERCIAL_CONFIG.DIFY_API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
 
-                    if (!response.ok) {
-                        throw new Error(`API Error (${response.status})`);
-                    }
-
-                    const data = await response.json();
-                    
-                    if (data.conversation_id) {
-                        CONFIG.conversationId = data.conversation_id;
-                    }
-                    
-                    return data.answer || '申し訳ございません。応答を取得できませんでした。';
-                } catch (error) {
-                    console.error('❌ API呼び出しエラー:', error);
-                    throw error;
+                if (!response.ok) {
+                    throw new Error(`Dify API Error (${response.status})`);
                 }
-            } else {
-                // テストモード
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                return "スマホ最適化版で動作中です！📱";
+
+                const data = await response.json();
+                
+                if (data.conversation_id) {
+                    COMMERCIAL_CONFIG.conversationId = data.conversation_id;
+                }
+                
+                return data.answer || '申し訳ございません。応答を取得できませんでした。';
+            } catch (error) {
+                console.error('❌ Dify API呼び出しエラー:', error);
+                throw error;
             }
         }
 
@@ -499,9 +545,23 @@
             const message = messageInput.value.trim();
             if (!message) return;
 
+            const userId = getUserId();
+
             addMessage(message, true);
             messageInput.value = '';
             messageInput.style.height = 'auto';
+            
+            // ユーザーメッセージをSupabaseに保存
+            try {
+                await supabaseClient.saveChatLog({
+                    user_id: userId,
+                    message_type: 'user',
+                    message: message
+                });
+                console.log('💾 ユーザーメッセージ保存完了');
+            } catch (error) {
+                console.error('❌ ユーザーメッセージ保存失敗:', error);
+            }
             
             sendButton.disabled = true;
             showLoading(true);
@@ -512,7 +572,21 @@
                 
                 showLoading(false);
                 addMessage(response);
-                updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'スマホ最適化版');
+                
+                // Bot応答をSupabaseに保存
+                try {
+                    await supabaseClient.saveChatLog({
+                        user_id: userId,
+                        message_type: 'bot',
+                        message: response,
+                        conversation_id: COMMERCIAL_CONFIG.conversationId
+                    });
+                    console.log('💾 Bot応答保存完了');
+                } catch (error) {
+                    console.error('❌ Bot応答保存失敗:', error);
+                }
+                
+                updateStatus('connected', '商用版 - 完全連携');
                 
             } catch (error) {
                 console.error('❌ メッセージ送信エラー:', error);
@@ -523,18 +597,54 @@
                 if (error.message.includes('401')) {
                     addMessage('❌ APIキーが無効です。設定を確認してください。', false, true);
                 } else if (error.message.includes('Failed to fetch')) {
-                    addMessage('❌ API接続エラーです。しばらくしてから再度お試しください。', false, true);
+                    addMessage('❌ AI接続エラーです。しばらくしてから再度お試しください。', false, true);
                 } else {
                     addMessage(`❌ エラーが発生しました: ${error.message}`, false, true);
                 }
                 
                 setTimeout(() => {
-                    updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'スマホ最適化版');
+                    updateStatus('connected', '商用版 - 完全連携');
                 }, 3000);
                 
             } finally {
                 sendButton.disabled = false;
-                messageInput.focus(); // スマホでフォーカスを戻す
+                messageInput.focus();
+            }
+        }
+
+        // ===========================================
+        // 🗄️ データベース初期化
+        // ===========================================
+        
+        async function ensureUser(userId) {
+            try {
+                console.log('👤 商用ユーザー登録開始:', userId);
+                
+                const existingUsers = await supabaseClient.getUserByUserId(userId);
+                const existingUser = existingUsers && existingUsers.length > 0 ? existingUsers[0] : null;
+
+                if (existingUser) {
+                    await supabaseClient.updateUser(userId, {
+                        last_active: new Date().toISOString(),
+                        session_count: existingUser.session_count + 1
+                    });
+                    
+                    console.log('👤 既存商用ユーザー更新完了:', userId);
+                    addMessage('👤 既存ユーザーとして認識されました', false, false, true);
+                } else {
+                    await supabaseClient.createUser({
+                        user_id: userId,
+                        session_count: 1
+                    });
+                    
+                    console.log('🆕 新規商用ユーザー作成完了:', userId);
+                    addMessage('🆕 新規ユーザーとして登録されました', false, false, true);
+                }
+                return true;
+            } catch (error) {
+                console.error('❌ 商用ユーザー操作エラー:', error);
+                addMessage(`❌ ユーザー処理エラー: ${error.message}`, false, false, true);
+                return false;
             }
         }
 
@@ -551,13 +661,11 @@
             }
         });
 
-        // テキストエリア自動リサイズ（スマホ対応）
         messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // スマホでキーボード表示時の調整
         window.addEventListener('resize', () => {
             scrollToBottom();
         });
@@ -566,26 +674,34 @@
         // 🚀 初期化
         // ===========================================
         
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
             initialTime.textContent = getCurrentTime();
             const userId = getUserId();
             
-            console.log('📱 スマホ最適化版チャットボット起動');
-            console.log('👤 Device User ID:', userId);
-            console.log('📏 Screen Size:', `${screen.width}x${screen.height}`);
-            console.log('🌍 Timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
-            console.log('📱 User Agent:', navigator.userAgent.substring(0, 50));
-            console.log('🤖 API Mode:', CONFIG.USE_REAL_API ? '本番' : 'テスト');
+            console.log('🏢 商用チャットボット起動');
+            console.log('🌐 環境:', COMMERCIAL_CONFIG.isProduction ? 'Production' : 'Development');
+            console.log('⚡ Vercel:', COMMERCIAL_CONFIG.isVercel ? 'Yes' : 'No');
+            console.log('🔗 API Base:', getApiBaseUrl());
+            console.log('👤 Commercial User ID:', userId);
             
-            updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'スマホ最適化版');
+            // データベース接続テスト
+            try {
+                console.log('🔄 商用データベース接続テスト開始...');
+                await supabaseClient.request('GET', 'users?limit=1&select=count');
+                console.log('✅ 商用データベース接続成功');
+                
+                // ユーザー登録
+                const userRegistered = await ensureUser(userId);
+                
+                updateStatus('connected', userRegistered ? '商用版 - 完全連携' : '商用版 - 部分機能');
+                
+            } catch (error) {
+                console.error('❌ 商用データベース接続失敗:', error);
+                updateStatus('error', '商用版 - DB接続失敗');
+                addMessage('⚠️ データベース接続に問題があります。チャット機能のみ利用可能です。', false, false, true);
+            }
+            
             messageInput.focus();
-        });
-
-        // ページ離脱防止（誤操作対策）
-        window.addEventListener('beforeunload', (e) => {
-            // 必要に応じてコメントアウト
-            // e.preventDefault();
-            // return '';
         });
     </script>
 </body>
