@@ -88,7 +88,7 @@
             max-width: 85%;
             padding: 12px 16px;
             border-radius: 18px;
-            font-size: 16px; /* スマホ用に拡大 */
+            font-size: 18px; /* 16px → 18px に拡大 */
             line-height: 1.4;
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -116,12 +116,12 @@
             background-color: #f0f0f0;
             border: 1px solid #ddd;
             color: #666;
-            font-size: 14px;
+            font-size: 16px; /* 14px → 16px に拡大 */
             font-style: italic;
         }
 
         .timestamp {
-            font-size: 12px; /* スマホ用に拡大 */
+            font-size: 13px; /* 12px → 13px に拡大 */
             color: #888;
             margin: 4px 12px 0;
         }
@@ -144,7 +144,7 @@
             border: 1px solid #ddd;
             border-radius: 20px;
             padding: 12px 16px; /* スマホ用にパディング拡大 */
-            font-size: 16px; /* スマホでズーム防止 */
+            font-size: 18px; /* 16px → 18px に拡大、ズーム防止も維持 */
             outline: none;
             resize: none;
             min-height: 20px;
@@ -274,7 +274,7 @@
         /* iOS Safari 特有の調整 */
         @supports (-webkit-touch-callout: none) {
             .input-field {
-                font-size: 16px; /* iOS Safari でのズーム防止 */
+                font-size: 18px; /* iOS Safari でのズーム防止、かつ読みやすいサイズ */
             }
         }
     </style>
@@ -293,7 +293,7 @@
             <div class="message-bubble">
                 こんにちは！スマホ最適化版チャットボットです 📱
                 
-文字サイズと表示領域を調整しました
+文字サイズ18px・端末別ユーザーID対応
             </div>
         </div>
         <div class="timestamp" id="initialTime"></div>
@@ -335,12 +335,42 @@
         // 🛠️ ユーティリティ関数
         // ===========================================
         
+        // 端末固有のユーザーID生成・取得
         function getUserId() {
             if (CONFIG.userId) return CONFIG.userId;
             
-            const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            CONFIG.userId = userId;
-            return userId;
+            // ローカルストレージから端末固有IDを取得
+            let deviceUserId = null;
+            try {
+                deviceUserId = localStorage.getItem('chatbot_device_user_id');
+            } catch (e) {
+                console.warn('localStorage利用不可、セッション限定IDを使用');
+            }
+            
+            if (!deviceUserId) {
+                // 端末識別用の情報を組み合わせてユニークIDを生成
+                const timestamp = Date.now();
+                const random = Math.random().toString(36).substr(2, 9);
+                const userAgent = navigator.userAgent.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '');
+                const screenInfo = `${screen.width}x${screen.height}`;
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/[^a-zA-Z0-9]/g, '');
+                
+                // 端末識別情報を含む固有IDを生成
+                deviceUserId = `device_${timestamp}_${random}_${userAgent}_${screenInfo}_${timezone}`.substring(0, 50);
+                
+                // 可能であればローカルストレージに保存
+                try {
+                    localStorage.setItem('chatbot_device_user_id', deviceUserId);
+                    console.log('👤 新しい端末IDを生成・保存:', deviceUserId);
+                } catch (e) {
+                    console.log('👤 新しい端末ID生成（セッション限定）:', deviceUserId);
+                }
+            } else {
+                console.log('👤 既存の端末IDを使用:', deviceUserId);
+            }
+            
+            CONFIG.userId = deviceUserId;
+            return deviceUserId;
         }
 
         function getCurrentTime() {
@@ -541,7 +571,10 @@
             const userId = getUserId();
             
             console.log('📱 スマホ最適化版チャットボット起動');
-            console.log('👤 User ID:', userId);
+            console.log('👤 Device User ID:', userId);
+            console.log('📏 Screen Size:', `${screen.width}x${screen.height}`);
+            console.log('🌍 Timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+            console.log('📱 User Agent:', navigator.userAgent.substring(0, 50));
             console.log('🤖 API Mode:', CONFIG.USE_REAL_API ? '本番' : 'テスト');
             
             updateStatus('connected', CONFIG.USE_REAL_API ? 'Dify API接続' : 'スマホ最適化版');
