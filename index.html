@@ -411,10 +411,30 @@ Supabase完全連携でデータ永続保存対応
                     throw new Error(`Commercial API Error (${response.status}): ${errorText}`);
                 }
                 
-                const result = response.status === 204 ? null : await response.json();
-                console.log(`✅ 商用API成功:`, result);
+                // 204 No Content や空のレスポンスの処理
+                const contentType = response.headers.get('content-type');
+                if (response.status === 204 || !contentType || !contentType.includes('application/json')) {
+                    console.log(`✅ 商用API成功: No Content (${response.status})`);
+                    return null;
+                }
                 
-                return result;
+                // レスポンステキストを取得
+                const responseText = await response.text();
+                
+                // 空のレスポンステキストの場合
+                if (!responseText || responseText.trim() === '') {
+                    console.log(`✅ 商用API成功: Empty Response`);
+                    return null;
+                }
+                
+                try {
+                    const result = JSON.parse(responseText);
+                    console.log(`✅ 商用API成功:`, result);
+                    return result;
+                } catch (parseError) {
+                    console.log(`⚠️ JSON解析失敗、テキストとして処理:`, responseText);
+                    return { message: responseText };
+                }
             }
             
             async getUserByUserId(userId) {
