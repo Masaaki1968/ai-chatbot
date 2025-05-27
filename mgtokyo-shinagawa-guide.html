@@ -115,6 +115,12 @@
             border-radius: 50%;
             flex-shrink: 0;
             margin-bottom: 4px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .message-avatar:hover {
+            transform: scale(1.1);
         }
 
         .message.bot .message-avatar {
@@ -315,6 +321,159 @@
             font-size: 16px;
         }
 
+        /* プロフィールモーダル */
+        .profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .profile-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-modal.show .profile-card {
+            transform: scale(1);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .profile-role {
+            font-size: 16px;
+            color: #e74c3c;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .profile-description {
+            font-size: 14px;
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .profile-stat {
+            background: rgba(231, 76, 60, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .profile-stat-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: #e74c3c;
+            display: block;
+        }
+
+        .profile-stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .profile-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-skill {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .profile-close {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(127, 140, 141, 0.4);
+        }
+
+        /* モバイル対応 */
+        @media (max-width: 480px) {
+            .profile-card {
+                padding: 25px 20px;
+                margin: 20px;
+            }
+            
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .profile-name {
+                font-size: 20px;
+            }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
         /* タブレット・PC対応 */
         @media (min-width: 768px) {
             .header {
@@ -404,7 +563,12 @@
 
         <!-- 初期メッセージ -->
         <div class="message bot">
-            <img class="message-avatar" src="https://raw.githubusercontent.com/Masaaki1968/ai-chatbot/main/asetts/aikon.png" alt="AI受付スタッフ" onerror="this.style.display='none'; const fallback = document.createElement('div'); fallback.className='message-avatar'; fallback.style.cssText='background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;'; fallback.textContent='🤖'; this.parentNode.insertBefore(fallback, this);">
+            <img class="message-avatar" 
+                 src="https://raw.githubusercontent.com/Masaaki1968/ai-chatbot/main/asetts/aikon.png?t=12345" 
+                 alt="AI受付スタッフ"
+                 title="クリックしてプロフィールを表示"
+                 onclick="showProfile()"
+                 onerror="this.style.display='none'; const fallback = document.createElement('div'); fallback.className='message-avatar'; fallback.title='クリックしてプロフィールを表示'; fallback.onclick=showProfile; fallback.style.cssText='background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; cursor: pointer;'; fallback.textContent='👩'; this.parentNode.insertBefore(fallback, this);">
             <div class="message-bubble">
 こんにちは！MGTOKYO品川の受付スタッフです。
                 
@@ -425,6 +589,36 @@
         <button class="send-button" id="sendButton">
             ➤
         </button>
+    </div>
+
+    <!-- プロフィールモーダル -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-card">
+            <img class="profile-avatar" src="https://raw.githubusercontent.com/Masaaki1968/ai-chatbot/main/asetts/aikon.png?t=12345" alt="AI受付スタッフ">
+            <h2 class="profile-name">さくら</h2>
+            <p class="profile-role">AI受付スタッフ</p>
+            <p class="profile-description">
+                MGTOKYO品川のAI受付スタッフです。ジム施設のご案内、予約サポート、周辺情報のご提供など、皆様のフィットネスライフをサポートいたします。24時間365日、いつでもお気軽にお声がけください！
+            </p>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <span class="profile-stat-number">24/7</span>
+                    <div class="profile-stat-label">対応時間</div>
+                </div>
+                <div class="profile-stat">
+                    <span class="profile-stat-number">∞</span>
+                    <div class="profile-stat-label">回答可能数</div>
+                </div>
+            </div>
+            <div class="profile-skills">
+                <span class="profile-skill">ジム施設案内</span>
+                <span class="profile-skill">予約サポート</span>
+                <span class="profile-skill">アクセス案内</span>
+                <span class="profile-skill">周辺情報</span>
+                <span class="profile-skill">多言語対応</span>
+            </div>
+            <button class="profile-close" onclick="closeProfile()">閉じる</button>
+        </div>
     </div>
 
     <script>
@@ -465,6 +659,35 @@
         const sendButton = document.getElementById('sendButton');
         const statusIndicator = document.getElementById('statusIndicator');
         const initialTime = document.getElementById('initialTime');
+        const profileModal = document.getElementById('profileModal');
+
+        // ===========================================
+        // 🎭 プロフィール表示機能
+        // ===========================================
+        
+        function showProfile() {
+            profileModal.classList.add('show');
+            document.body.style.overflow = 'hidden'; // スクロール防止
+        }
+        
+        function closeProfile() {
+            profileModal.classList.remove('show');
+            document.body.style.overflow = 'auto'; // スクロール復活
+        }
+        
+        // モーダル外クリックで閉じる
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                closeProfile();
+            }
+        });
+        
+        // ESCキーで閉じる
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && profileModal.classList.contains('show')) {
+                closeProfile();
+            }
+        });
 
         // ===========================================
         // 🛠️ ユーティリティ関数
@@ -603,13 +826,19 @@
             if (!isUser) {
                 const avatarImg = document.createElement('img');
                 avatarImg.className = 'message-avatar';
-                avatarImg.src = 'https://raw.githubusercontent.com/Masaaki1968/ai-chatbot/main/asetts/aikon.png';
+                avatarImg.src = 'https://raw.githubusercontent.com/Masaaki1968/ai-chatbot/main/asetts/aikon.png?t=' + Date.now();
                 avatarImg.alt = 'AI受付スタッフ';
+                avatarImg.title = 'クリックしてプロフィールを表示';
+                
+                // アバタークリックでプロフィール表示
+                avatarImg.addEventListener('click', showProfile);
+                
                 avatarImg.onerror = function() {
                     // 画像読み込み失敗時のフォールバック
                     this.style.display = 'none';
                     const fallbackDiv = document.createElement('div');
                     fallbackDiv.className = 'message-avatar';
+                    fallbackDiv.title = 'クリックしてプロフィールを表示';
                     fallbackDiv.style.cssText = `
                         background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
                         color: white;
@@ -618,8 +847,10 @@
                         justify-content: center;
                         font-size: 18px;
                         font-weight: bold;
+                        cursor: pointer;
                     `;
-                    fallbackDiv.textContent = '🤖';
+                    fallbackDiv.textContent = '👩';
+                    fallbackDiv.addEventListener('click', showProfile);
                     this.parentNode.insertBefore(fallbackDiv, this);
                 };
                 messageDiv.appendChild(avatarImg);
@@ -649,12 +880,18 @@
                 // アバター追加
                 const avatarImg = document.createElement('img');
                 avatarImg.className = 'message-avatar';
-                avatarImg.src = 'https://raw.githubusercontent.com/Masaaki1968/ai-chatbot/main/asetts/aikon.png';
+                avatarImg.src = 'https://raw.githubusercontent.com/Masaaki1968/ai-chatbot/main/asetts/aikon.png?t=' + Date.now();
                 avatarImg.alt = 'AI受付スタッフ';
+                avatarImg.title = 'クリックしてプロフィールを表示';
+                
+                // アバタークリックでプロフィール表示
+                avatarImg.addEventListener('click', showProfile);
+                
                 avatarImg.onerror = function() {
                     this.style.display = 'none';
                     const fallbackDiv = document.createElement('div');
                     fallbackDiv.className = 'message-avatar';
+                    fallbackDiv.title = 'クリックしてプロフィールを表示';
                     fallbackDiv.style.cssText = `
                         background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
                         color: white;
@@ -663,8 +900,10 @@
                         justify-content: center;
                         font-size: 18px;
                         font-weight: bold;
+                        cursor: pointer;
                     `;
-                    fallbackDiv.textContent = '🤖';
+                    fallbackDiv.textContent = '👩';
+                    fallbackDiv.addEventListener('click', showProfile);
                     this.parentNode.insertBefore(fallbackDiv, this);
                 };
                 messageDiv.appendChild(avatarImg);
