@@ -412,7 +412,7 @@
         // ===========================================
         // 🔧 MGTOKYO品川専用設定
         // ===========================================
-        const MGTOKYO_CONFIG = {
+        const MGTOKYO_SHINAGAWA_CONFIG = {
             // 環境判定
             isProduction: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1',
             
@@ -437,7 +437,7 @@
 
         // API基本URL
         const getApiBaseUrl = () => {
-            return MGTOKYO_CONFIG.isProduction ? '/api/supabase' : 'https://vdpfciilcwgdvqnancsx.supabase.co/rest/v1';
+            return MGTOKYO_SHINAGAWA_CONFIG.isProduction ? '/api/supabase' : 'https://vdpfciilcwgdvqnancsx.supabase.co/rest/v1';
         };
 
         // DOM要素の取得
@@ -452,7 +452,7 @@
         // ===========================================
         
         function getUserId() {
-            if (MGTOKYO_CONFIG.userId) return MGTOKYO_CONFIG.userId;
+            if (MGTOKYO_SHINAGAWA_CONFIG.userId) return MGTOKYO_SHINAGAWA_CONFIG.userId;
             
             let userId = null;
             try {
@@ -479,7 +479,7 @@
                 console.log('👤 既存のMGTOKYO品川ユーザーIDを使用:', userId);
             }
             
-            MGTOKYO_CONFIG.userId = userId;
+            MGTOKYO_SHINAGAWA_CONFIG.userId = userId;
             return userId;
         }
 
@@ -508,8 +508,8 @@
             constructor() {
                 this.baseUrl = getApiBaseUrl();
                 this.headers = {
-                    'apikey': MGTOKYO_CONFIG.SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${MGTOKYO_CONFIG.SUPABASE_ANON_KEY}`,
+                    'apikey': MGTOKYO_SHINAGAWA_CONFIG.SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${MGTOKYO_SHINAGAWA_CONFIG.SUPABASE_ANON_KEY}`,
                     'Content-Type': 'application/json',
                     'Prefer': 'return=minimal'
                 };
@@ -562,10 +562,10 @@
             async saveChatLog(logData) {
                 return await this.request('POST', 'chat_logs', {
                     ...logData,
-                    location: MGTOKYO_CONFIG.location,
-                    area: MGTOKYO_CONFIG.area,
-                    service: MGTOKYO_CONFIG.service,
-                    path: MGTOKYO_CONFIG.path
+                    location: MGTOKYO_SHINAGAWA_CONFIG.location,
+                    area: MGTOKYO_SHINAGAWA_CONFIG.area,
+                    service: MGTOKYO_SHINAGAWA_CONFIG.service,
+                    path: MGTOKYO_SHINAGAWA_CONFIG.path
                 });
             }
         }
@@ -635,15 +635,15 @@
                     inputs: {},
                     query: message,
                     response_mode: "blocking",
-                    conversation_id: MGTOKYO_CONFIG.conversationId || "",
+                    conversation_id: MGTOKYO_SHINAGAWA_CONFIG.conversationId || "",
                     user: getUserId(),
                     auto_generate_name: false
                 };
 
-                const response = await fetch(MGTOKYO_CONFIG.DIFY_ENDPOINT, {
+                const response = await fetch(MGTOKYO_SHINAGAWA_CONFIG.DIFY_ENDPOINT, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${MGTOKYO_CONFIG.DIFY_API_KEY}`,
+                        'Authorization': `Bearer ${MGTOKYO_SHINAGAWA_CONFIG.DIFY_API_KEY}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(requestBody)
@@ -656,7 +656,7 @@
                 const data = await response.json();
                 
                 if (data.conversation_id) {
-                    MGTOKYO_CONFIG.conversationId = data.conversation_id;
+                    MGTOKYO_SHINAGAWA_CONFIG.conversationId = data.conversation_id;
                 }
                 
                 return data.answer || '申し訳ございません。少々お待ちください。スタッフが確認いたします。';
@@ -708,7 +708,7 @@
                         user_id: userId,
                         message_type: 'bot',
                         message: response,
-                        conversation_id: MGTOKYO_CONFIG.conversationId
+                        conversation_id: MGTOKYO_SHINAGAWA_CONFIG.conversationId
                     });
                     console.log('💾 MGTOKYO品川Bot応答保存完了');
                 } catch (error) {
@@ -716,6 +716,9 @@
                 }
                 
                 updateStatus('connected', 'オンライン');
+                
+            } catch (error) {
+                console.error('❌ MGTOKYO品川メッセージ送信エラー:', error);
                 
                 showLoading(false);
                 updateStatus('error', 'エラー');
@@ -763,742 +766,12 @@
             const userId = getUserId();
             
             console.log('🏢 MGTOKYO品川総合案内チャットボット起動');
-            console.log('📍 Location:', MGTOKYO_CONFIG.location);
-            console.log('🌍 Area:', MGTOKYO_CONFIG.area);
-            console.log('🔧 Service:', MGTOKYO_CONFIG.service);
-            console.log('🛤️ Path:', MGTOKYO_CONFIG.path);
+            console.log('📍 Location:', MGTOKYO_SHINAGAWA_CONFIG.location);
+            console.log('🌍 Area:', MGTOKYO_SHINAGAWA_CONFIG.area);
+            console.log('🔧 Service:', MGTOKYO_SHINAGAWA_CONFIG.service);
+            console.log('🛤️ Path:', MGTOKYO_SHINAGAWA_CONFIG.path);
             console.log('👤 User ID:', userId);
-            console.log('🌐 Environment:', MGTOKYO_CONFIG.isProduction ? 'Production' : 'Development');
-            
-            updateStatus('connected', 'オンライン');
-            messageInput.focus();
-            
-            // ウェルカムメッセージの遅延表示
-            setTimeout(() => {
-                console.log('🎯 MGTOKYO品川総合案内システム準備完了');
-            }, 1000);
-        });
-
-        // ===========================================
-        // 🎯 品川特化機能
-        // ===========================================
-        
-        // 品川駅からのアクセス案内などの特化機能を後で追加可能
-        function showShinagawaAccess() {
-            addMessage('🚃 品川駅からのアクセス案内をご希望ですか？詳しいルートをご案内いたします。', false, false, true);
-        }
-        
-        // 会議室予約案内
-        function showMeetingRoomInfo() {
-            addMessage('📅 会議室のご予約について詳しくご案内いたします。ご希望の日時や人数をお教えください。', false, false, true);
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>MGTOKYO 総合案内チャットボット</title>
-    <meta name="description" content="MGTOKYO品川の総合案内AIチャットボット">
-    <style>
-        /* 基本的なリセット */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-        }
-
-        /* ヘッダー */
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            flex-shrink: 0;
-            min-height: 60px;
-        }
-
-        .header-content {
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-
-        .logo {
-            font-size: 20px;
-            margin-right: 12px;
-        }
-
-        .header-text {
-            flex: 1;
-        }
-
-        .header h1 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .header .subtitle {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .status-indicator {
-            font-size: 11px;
-            padding: 4px 8px;
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 8px;
-        }
-
-        .status-indicator.connected {
-            background-color: rgba(0,255,0,0.3);
-        }
-
-        .status-indicator.error {
-            background-color: rgba(255,0,0,0.3);
-        }
-
-        /* チャットエリア */
-        .chat-container {
-            flex: 1;
-            padding: 12px;
-            overflow-y: auto;
-            background-color: #f0f0f0;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 10px;
-        }
-
-        .message {
-            margin-bottom: 12px;
-            display: flex;
-            align-items: flex-end;
-        }
-
-        .message.user {
-            flex-direction: row-reverse;
-        }
-
-        .message-bubble {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 18px;
-            line-height: 1.4;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-        }
-
-        .message.bot .message-bubble {
-            background-color: white;
-            border: 1px solid #e0e0e0;
-            border-bottom-left-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .message.user .message-bubble {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-bottom-right-radius: 6px;
-        }
-
-        .message.error .message-bubble {
-            background-color: #ffe6e6;
-            border-color: #ffcccc;
-            color: #cc0000;
-        }
-
-        .message.system .message-bubble {
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-            color: #666;
-            font-size: 16px;
-            font-style: italic;
-        }
-
-        .timestamp {
-            font-size: 13px;
-            color: #888;
-            margin: 4px 12px 0;
-        }
-
-        /* 入力エリア */
-        .input-container {
-            background-color: white;
-            padding: 12px 16px;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            flex-shrink: 0;
-            padding-bottom: max(12px, env(safe-area-inset-bottom));
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-        }
-
-        .input-field {
-            flex: 1;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            padding: 12px 16px;
-            font-size: 18px;
-            outline: none;
-            resize: none;
-            min-height: 20px;
-            max-height: 120px;
-            font-family: inherit;
-            transform: translateZ(0);
-        }
-
-        .input-field:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-        }
-
-        .send-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-weight: bold;
-            flex-shrink: 0;
-            font-size: 18px;
-            touch-action: manipulation;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        .send-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .send-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .send-button:active {
-            transform: scale(0.95);
-        }
-
-        /* ローディング表示 */
-        .loading-dots {
-            display: flex;
-            gap: 3px;
-        }
-
-        .loading-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #888;
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
-        }
-
-        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
-        .loading-dot:nth-child(3) { animation-delay: 0s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-
-        /* ウェルカムカード */
-        .welcome-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-            border-left: 4px solid #667eea;
-        }
-
-        .welcome-card h3 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-
-        .welcome-card p {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        /* タブレット・PC対応 */
-        @media (min-width: 768px) {
-            .header {
-                padding: 15px 20px;
-            }
-            
-            .header h1 {
-                font-size: 20px;
-            }
-            
-            .chat-container {
-                padding: 20px;
-            }
-            
-            .input-container {
-                padding: 15px 20px;
-            }
-            
-            .message-bubble {
-                max-width: 80%;
-                font-size: 16px;
-            }
-            
-            .timestamp {
-                font-size: 12px;
-            }
-            
-            .input-field {
-                font-size: 16px;
-                padding: 12px 16px;
-            }
-            
-            .send-button {
-                width: 48px;
-                height: 48px;
-                font-size: 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- ヘッダー -->
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">🏢</div>
-            <div class="header-text">
-                <h1>MGTOKYO 総合案内</h1>
-                <div class="subtitle">AI受付スタッフがご案内します</div>
-            </div>
-            <div class="status-indicator connected" id="statusIndicator">オンライン</div>
-        </div>
-    </div>
-
-    <!-- チャットエリア -->
-    <div class="chat-container" id="chatContainer">
-        <!-- ウェルカムカード -->
-        <div class="welcome-card">
-            <h3>🌟 MGTOKYO品川へようこそ</h3>
-            <p>
-                館内のご案内、施設情報、アクセス方法など、何でもお気軽にお尋ねください。
-                AI受付スタッフが24時間対応いたします。
-            </p>
-        </div>
-
-        <!-- 初期メッセージ -->
-        <div class="message bot">
-            <div class="message-bubble">
-                こんにちは！MGTOKYO品川の受付スタッフです。
-                
-館内のご案内や施設に関するご質問など、何でもお気軽にお聞きください 😊
-            </div>
-        </div>
-        <div class="timestamp" id="initialTime"></div>
-    </div>
-
-    <!-- 入力エリア -->
-    <div class="input-container">
-        <textarea 
-            class="input-field" 
-            id="messageInput" 
-            placeholder="ご質問をどうぞ..."
-            rows="1"
-        ></textarea>
-        <button class="send-button" id="sendButton">
-            ➤
-        </button>
-    </div>
-
-    <script>
-        // ===========================================
-        // 🔧 MGTOKYO専用設定
-        // ===========================================
-        const MGTOKYO_CONFIG = {
-            // 環境判定
-            isProduction: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1',
-            
-            // Supabase設定
-            SUPABASE_URL: 'https://vdpfciilcwgdvqnancsx.supabase.co',
-            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkcGZjaWlsY3dnZHZxbmFuY3N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzg0NTYsImV4cCI6MjA2Mzg1NDQ1Nn0.NIs2_UuZMikSBGjo52OuQc1F0JkUyqiTYzVpOnKxea8',
-            
-            // Dify設定
-            DIFY_ENDPOINT: 'https://api.dify.ai/v1/chat-messages',
-            DIFY_API_KEY: 'app-1AKzG866aFIbrFElAr95xhjf',
-            
-            // アプリ設定
-            userId: null,
-            conversationId: null,
-            
-            // MGTOKYO専用設定
-            location: 'MGTOKYO品川',
-            service: 'general_guide'
-        };
-
-        // API基本URL
-        const getApiBaseUrl = () => {
-            return MGTOKYO_CONFIG.isProduction ? '/api/supabase' : 'https://vdpfciilcwgdvqnancsx.supabase.co/rest/v1';
-        };
-
-        // DOM要素の取得
-        const chatContainer = document.getElementById('chatContainer');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const initialTime = document.getElementById('initialTime');
-
-        // ===========================================
-        // 🛠️ ユーティリティ関数
-        // ===========================================
-        
-        function getUserId() {
-            if (MGTOKYO_CONFIG.userId) return MGTOKYO_CONFIG.userId;
-            
-            let userId = null;
-            try {
-                userId = localStorage.getItem('mgtokyo_chatbot_user_id');
-            } catch (e) {
-                console.warn('localStorage利用不可、セッション限定IDを使用');
-            }
-            
-            if (!userId) {
-                const timestamp = Date.now();
-                const random = Math.random().toString(36).substr(2, 9);
-                const userAgent = navigator.userAgent.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '');
-                const screenInfo = `${screen.width}x${screen.height}`;
-                
-                userId = `mgtokyo_${timestamp}_${random}_${userAgent}_${screenInfo}`.substring(0, 60);
-                
-                try {
-                    localStorage.setItem('mgtokyo_chatbot_user_id', userId);
-                    console.log('👤 MGTOKYOユーザーID生成・保存:', userId);
-                } catch (e) {
-                    console.log('👤 MGTOKYOユーザーID生成（セッション限定）:', userId);
-                }
-            } else {
-                console.log('👤 既存のMGTOKYOユーザーIDを使用:', userId);
-            }
-            
-            MGTOKYO_CONFIG.userId = userId;
-            return userId;
-        }
-
-        function getCurrentTime() {
-            const now = new Date();
-            return now.getHours().toString().padStart(2, '0') + ':' + 
-                   now.getMinutes().toString().padStart(2, '0');
-        }
-
-        function updateStatus(status, message) {
-            statusIndicator.className = `status-indicator ${status}`;
-            statusIndicator.textContent = message;
-        }
-
-        function scrollToBottom() {
-            setTimeout(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 100);
-        }
-
-        // ===========================================
-        // 🗄️ Supabaseクライアント
-        // ===========================================
-        
-        class MGTOKYOSupabaseClient {
-            constructor() {
-                this.baseUrl = getApiBaseUrl();
-                this.headers = {
-                    'apikey': MGTOKYO_CONFIG.SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${MGTOKYO_CONFIG.SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=minimal'
-                };
-            }
-            
-            async request(method, endpoint, data = null) {
-                const url = `${this.baseUrl}/${endpoint}`;
-                
-                const options = {
-                    method,
-                    headers: this.headers,
-                    mode: 'cors'
-                };
-                
-                if (data && (method === 'POST' || method === 'PATCH')) {
-                    options.body = JSON.stringify(data);
-                }
-                
-                console.log(`🌐 MGTOKYO API: ${method} ${url}`);
-                
-                const response = await fetch(url, options);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`MGTOKYO API Error (${response.status}): ${errorText}`);
-                }
-                
-                const contentType = response.headers.get('content-type');
-                if (response.status === 204 || !contentType || !contentType.includes('application/json')) {
-                    console.log(`✅ MGTOKYO API成功: No Content (${response.status})`);
-                    return null;
-                }
-                
-                const responseText = await response.text();
-                if (!responseText || responseText.trim() === '') {
-                    console.log(`✅ MGTOKYO API成功: Empty Response`);
-                    return null;
-                }
-                
-                try {
-                    const result = JSON.parse(responseText);
-                    console.log(`✅ MGTOKYO API成功:`, result);
-                    return result;
-                } catch (parseError) {
-                    console.log(`⚠️ JSON解析失敗、テキストとして処理:`, responseText);
-                    return { message: responseText };
-                }
-            }
-            
-            async saveChatLog(logData) {
-                return await this.request('POST', 'chat_logs', {
-                    ...logData,
-                    location: MGTOKYO_CONFIG.location,
-                    service: MGTOKYO_CONFIG.service
-                });
-            }
-        }
-
-        const supabaseClient = new MGTOKYOSupabaseClient();
-
-        // ===========================================
-        // 🎨 UI操作関数
-        // ===========================================
-        
-        function addMessage(text, isUser = false, isError = false, isSystem = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user' : 'bot'} ${isError ? 'error' : ''} ${isSystem ? 'system' : ''}`;
-            
-            const bubbleDiv = document.createElement('div');
-            bubbleDiv.className = 'message-bubble';
-            bubbleDiv.textContent = text;
-            
-            const timestampDiv = document.createElement('div');
-            timestampDiv.className = 'timestamp';
-            timestampDiv.textContent = getCurrentTime();
-            
-            messageDiv.appendChild(bubbleDiv);
-            chatContainer.appendChild(messageDiv);
-            chatContainer.appendChild(timestampDiv);
-            
-            scrollToBottom();
-        }
-
-        function showLoading(show = true) {
-            if (show) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message bot';
-                messageDiv.id = 'loading-message';
-                
-                const bubbleDiv = document.createElement('div');
-                bubbleDiv.className = 'message-bubble';
-                bubbleDiv.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div class="loading-dots">
-                            <div class="loading-dot"></div>
-                            <div class="loading-dot"></div>
-                            <div class="loading-dot"></div>
-                        </div>
-                        <span>確認しています...</span>
-                    </div>
-                `;
-                
-                messageDiv.appendChild(bubbleDiv);
-                chatContainer.appendChild(messageDiv);
-                scrollToBottom();
-            } else {
-                const loadingMsg = document.getElementById('loading-message');
-                if (loadingMsg) {
-                    loadingMsg.remove();
-                }
-            }
-        }
-
-        // ===========================================
-        // 🤖 AI連携
-        // ===========================================
-        
-        async function getAIResponse(message) {
-            try {
-                const requestBody = {
-                    inputs: {},
-                    query: message,
-                    response_mode: "blocking",
-                    conversation_id: MGTOKYO_CONFIG.conversationId || "",
-                    user: getUserId(),
-                    auto_generate_name: false
-                };
-
-                const response = await fetch(MGTOKYO_CONFIG.DIFY_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${MGTOKYO_CONFIG.DIFY_API_KEY}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Dify API Error (${response.status})`);
-                }
-
-                const data = await response.json();
-                
-                if (data.conversation_id) {
-                    MGTOKYO_CONFIG.conversationId = data.conversation_id;
-                }
-                
-                return data.answer || '申し訳ございません。少々お待ちください。';
-            } catch (error) {
-                console.error('❌ Dify API呼び出しエラー:', error);
-                throw error;
-            }
-        }
-
-        // ===========================================
-        // 📨 メッセージ送信処理
-        // ===========================================
-        
-        async function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message) return;
-
-            const userId = getUserId();
-
-            addMessage(message, true);
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            
-            // チャットログ保存
-            try {
-                await supabaseClient.saveChatLog({
-                    user_id: userId,
-                    message_type: 'user',
-                    message: message
-                });
-                console.log('💾 MGTOKYOユーザーメッセージ保存完了');
-            } catch (error) {
-                console.error('❌ MGTOKYOユーザーメッセージ保存失敗:', error);
-            }
-            
-            sendButton.disabled = true;
-            showLoading(true);
-            updateStatus('', 'ご案内中...');
-            
-            try {
-                const response = await getAIResponse(message);
-                
-                showLoading(false);
-                addMessage(response);
-                
-                // Bot応答保存
-                try {
-                    await supabaseClient.saveChatLog({
-                        user_id: userId,
-                        message_type: 'bot',
-                        message: response,
-                        conversation_id: MGTOKYO_CONFIG.conversationId
-                    });
-                    console.log('💾 MGTOKYOBot応答保存完了');
-                } catch (error) {
-                    console.error('❌ MGTOKYOBot応答保存失敗:', error);
-                }
-                
-                updateStatus('connected', 'オンライン');
-                
-            } catch (error) {
-                console.error('❌ MGTOKYOメッセージ送信エラー:', error);
-                
-                showLoading(false);
-                updateStatus('error', 'エラー');
-                
-                addMessage('申し訳ございません。システムに一時的な問題が発生しています。しばらくしてから再度お試しください。', false, true);
-                
-                setTimeout(() => {
-                    updateStatus('connected', 'オンライン');
-                }, 3000);
-                
-            } finally {
-                sendButton.disabled = false;
-                messageInput.focus();
-            }
-        }
-
-        // ===========================================
-        // 🎮 イベントリスナー
-        // ===========================================
-        
-        sendButton.addEventListener('click', sendMessage);
-        
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
-
-        window.addEventListener('resize', () => {
-            scrollToBottom();
-        });
-
-        // ===========================================
-        // 🚀 初期化
-        // ===========================================
-        
-        window.addEventListener('load', () => {
-            initialTime.textContent = getCurrentTime();
-            const userId = getUserId();
-            
-            console.log('🏢 MGTOKYO総合案内チャットボット起動');
-            console.log('📍 Location:', MGTOKYO_CONFIG.location);
-            console.log('🔧 Service:', MGTOKYO_CONFIG.service);
-            console.log('👤 MGTOKYO User ID:', userId);
-            console.log('🌐 Environment:', MGTOKYO_CONFIG.isProduction ? 'Production' : 'Development');
+            console.log('🌐 Environment:', MGTOKYO_SHINAGAWA_CONFIG.isProduction ? 'Production' : 'Development');
             
             updateStatus('connected', 'オンライン');
             messageInput.focus();
