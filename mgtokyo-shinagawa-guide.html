@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>MGTOKYO品川 総合案内チャットボット</title>
-    <meta name="description" content="MGTOKYO品川オフィスの総合案内AIチャットボット - 施設情報・アクセス・サービス案内">
-    <meta name="keywords" content="MGTOKYO,品川,オフィス,総合案内,受付,AI,チャットボット">
+    <meta name="description" content="MGTOKYO品川レンタルジムの総合案内AIチャットボット - ジム施設情報・アクセス・予約案内">
+    <meta name="keywords" content="MGTOKYO,品川,レンタルジム,総合案内,受付,AI,チャットボット,ジム,フィットネス">
     <style>
         /* 基本的なリセット */
         * {
@@ -33,7 +33,7 @@
 
         /* ヘッダー */
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #e74c3c 100%);
             color: white;
             padding: 15px 20px;
             display: flex;
@@ -128,7 +128,7 @@
         }
 
         .message.user .message-bubble {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
             border-bottom-right-radius: 8px;
         }
@@ -168,7 +168,7 @@
 
         .input-field {
             flex: 1;
-            border: 2px solid rgba(52, 152, 219, 0.3);
+            border: 2px solid rgba(231, 76, 60, 0.3);
             border-radius: 25px;
             padding: 12px 18px;
             font-size: 18px;
@@ -183,8 +183,8 @@
         }
 
         .input-field:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
             background: rgba(255,255,255,1);
         }
 
@@ -193,7 +193,7 @@
         }
 
         .send-button {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
             border: none;
             border-radius: 50%;
@@ -207,13 +207,13 @@
             flex-shrink: 0;
             font-size: 20px;
             touch-action: manipulation;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
             transition: all 0.3s ease;
         }
 
         .send-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.5);
         }
 
         .send-button:disabled {
@@ -236,7 +236,7 @@
         .loading-dot {
             width: 8px;
             height: 8px;
-            background-color: #3498db;
+            background-color: #e74c3c;
             border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out;
         }
@@ -286,7 +286,7 @@
             display: flex;
             align-items: center;
             padding: 8px;
-            background: rgba(52, 152, 219, 0.1);
+            background: rgba(231, 76, 60, 0.1);
             border-radius: 8px;
             font-size: 13px;
             color: #2c3e50;
@@ -345,7 +345,7 @@
     <!-- ヘッダー -->
     <div class="header">
         <div class="header-content">
-            <div class="logo">🏢</div>
+            <div class="logo">💪</div>
             <div class="header-text">
                 <h1>MGTOKYO品川 総合案内</h1>
                 <div class="subtitle">AI受付スタッフ｜24時間対応</div>
@@ -358,10 +358,10 @@
     <div class="chat-container" id="chatContainer">
         <!-- ウェルカムカード -->
         <div class="welcome-card">
-            <h3>🌟 MGTOKYO品川オフィスへようこそ</h3>
+            <h3>🌟 MGTOKYO品川へようこそ</h3>
             <p>
-                品川駅至近のオフィス施設「MGTOKYO品川」の総合案内AIです。
-                館内施設、アクセス方法、会議室予約、各種サービスについて
+                品川駅至近のレンタルジム「MGTOKYO品川」の総合案内AIです。
+                ジム内施設、アクセス方法、予約、各種サービスについて
                 何でもお気軽にお尋ねください。
             </p>
             <div class="welcome-features">
@@ -371,15 +371,15 @@
                 </div>
                 <div class="feature-item">
                     <span class="emoji">🏢</span>
-                    <span>館内施設案内</span>
+                    <span>ジム内施設案内</span>
                 </div>
                 <div class="feature-item">
                     <span class="emoji">📅</span>
-                    <span>会議室予約</span>
+                    <span>予約</span>
                 </div>
                 <div class="feature-item">
                     <span class="emoji">☕</span>
-                    <span>カフェ・休憩室</span>
+                    <span>付近のカフェ・コンビニ</span>
                 </div>
             </div>
         </div>
@@ -389,7 +389,7 @@
             <div class="message-bubble">
                 こんにちは！MGTOKYO品川の受付スタッフです。
                 
-館内のご案内、アクセス方法、会議室のご予約、周辺施設情報など、何でもお気軽にお聞きください。24時間いつでも対応いたします 😊
+ジム内のご案内、アクセス方法、ご予約、周辺施設情報など、何でもお気軽にお聞きください。24時間いつでも対応いたします 💪
             </div>
         </div>
         <div class="timestamp" id="initialTime"></div>
@@ -428,11 +428,11 @@
             userId: null,
             conversationId: null,
             
-            // MGTOKYO品川専用設定
+            // MGTOKYO品川専用設定（レンタルジム）
             location: 'MGTOKYO品川',
             area: '品川',
-            service: 'general_guide',
-            path: '/mgtokyo/shinagawa/general_guide'
+            service: 'rental_gym_guide',
+            path: '/mgtokyo/shinagawa/rental_gym_guide'
         };
 
         // API基本URL
@@ -456,7 +456,7 @@
             
             let userId = null;
             try {
-                userId = localStorage.getItem('mgtokyo_shinagawa_user_id');
+                userId = localStorage.getItem('mgtokyo_shinagawa_gym_user_id');
             } catch (e) {
                 console.warn('localStorage利用不可、セッション限定IDを使用');
             }
@@ -467,16 +467,16 @@
                 const userAgent = navigator.userAgent.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '');
                 const screenInfo = `${screen.width}x${screen.height}`;
                 
-                userId = `mgtokyo_shinagawa_${timestamp}_${random}_${userAgent}_${screenInfo}`.substring(0, 70);
+                userId = `mgtokyo_shinagawa_gym_${timestamp}_${random}_${userAgent}_${screenInfo}`.substring(0, 70);
                 
                 try {
-                    localStorage.setItem('mgtokyo_shinagawa_user_id', userId);
-                    console.log('👤 MGTOKYO品川ユーザーID生成・保存:', userId);
+                    localStorage.setItem('mgtokyo_shinagawa_gym_user_id', userId);
+                    console.log('👤 MGTOKYO品川ジムユーザーID生成・保存:', userId);
                 } catch (e) {
-                    console.log('👤 MGTOKYO品川ユーザーID生成（セッション限定）:', userId);
+                    console.log('👤 MGTOKYO品川ジムユーザーID生成（セッション限定）:', userId);
                 }
             } else {
-                console.log('👤 既存のMGTOKYO品川ユーザーIDを使用:', userId);
+                console.log('👤 既存のMGTOKYO品川ジムユーザーIDを使用:', userId);
             }
             
             MGTOKYO_SHINAGAWA_CONFIG.userId = userId;
@@ -528,30 +528,30 @@
                     options.body = JSON.stringify(data);
                 }
                 
-                console.log(`🌐 MGTOKYO品川 API: ${method} ${url}`);
+                console.log(`🌐 MGTOKYO品川ジム API: ${method} ${url}`);
                 
                 const response = await fetch(url, options);
                 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`MGTOKYO Shinagawa API Error (${response.status}): ${errorText}`);
+                    throw new Error(`MGTOKYO Shinagawa Gym API Error (${response.status}): ${errorText}`);
                 }
                 
                 const contentType = response.headers.get('content-type');
                 if (response.status === 204 || !contentType || !contentType.includes('application/json')) {
-                    console.log(`✅ MGTOKYO品川 API成功: No Content (${response.status})`);
+                    console.log(`✅ MGTOKYO品川ジム API成功: No Content (${response.status})`);
                     return null;
                 }
                 
                 const responseText = await response.text();
                 if (!responseText || responseText.trim() === '') {
-                    console.log(`✅ MGTOKYO品川 API成功: Empty Response`);
+                    console.log(`✅ MGTOKYO品川ジム API成功: Empty Response`);
                     return null;
                 }
                 
                 try {
                     const result = JSON.parse(responseText);
-                    console.log(`✅ MGTOKYO品川 API成功:`, result);
+                    console.log(`✅ MGTOKYO品川ジム API成功:`, result);
                     return result;
                 } catch (parseError) {
                     console.log(`⚠️ JSON解析失敗、テキストとして処理:`, responseText);
@@ -687,9 +687,9 @@
                     message_type: 'user',
                     message: message
                 });
-                console.log('💾 MGTOKYO品川ユーザーメッセージ保存完了');
+                console.log('💾 MGTOKYO品川ジムユーザーメッセージ保存完了');
             } catch (error) {
-                console.error('❌ MGTOKYO品川ユーザーメッセージ保存失敗:', error);
+                console.error('❌ MGTOKYO品川ジムユーザーメッセージ保存失敗:', error);
             }
             
             sendButton.disabled = true;
@@ -710,15 +710,15 @@
                         message: response,
                         conversation_id: MGTOKYO_SHINAGAWA_CONFIG.conversationId
                     });
-                    console.log('💾 MGTOKYO品川Bot応答保存完了');
+                    console.log('💾 MGTOKYO品川ジムBot応答保存完了');
                 } catch (error) {
-                    console.error('❌ MGTOKYO品川Bot応答保存失敗:', error);
+                    console.error('❌ MGTOKYO品川ジムBot応答保存失敗:', error);
                 }
                 
                 updateStatus('connected', 'オンライン');
                 
             } catch (error) {
-                console.error('❌ MGTOKYO品川メッセージ送信エラー:', error);
+                console.error('❌ MGTOKYO品川ジムメッセージ送信エラー:', error);
                 
                 showLoading(false);
                 updateStatus('error', 'エラー');
@@ -765,7 +765,7 @@
             initialTime.textContent = getCurrentTime();
             const userId = getUserId();
             
-            console.log('🏢 MGTOKYO品川総合案内チャットボット起動');
+            console.log('💪 MGTOKYO品川レンタルジム総合案内チャットボット起動');
             console.log('📍 Location:', MGTOKYO_SHINAGAWA_CONFIG.location);
             console.log('🌍 Area:', MGTOKYO_SHINAGAWA_CONFIG.area);
             console.log('🔧 Service:', MGTOKYO_SHINAGAWA_CONFIG.service);
