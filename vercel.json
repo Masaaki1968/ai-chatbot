@@ -9,10 +9,6 @@
     {
       "source": "/mgtokyo/shinagawa/general_guide",
       "destination": "/mgtokyo-shinagawa-guide.html"
-    },
-    {
-      "source": "/mgtokyo/shinagawa/general_guide/(.*)",
-      "destination": "/mgtokyo-shinagawa-guide.html"
     }
   ],
   "headers": [
